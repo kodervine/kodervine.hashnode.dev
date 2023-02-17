@@ -18,7 +18,7 @@ Okay, let's start with the golden rule of programming!
 
 <iframe src="https://share.descript.com/embed/8gSkRUm3heI" width="320" height="320"></iframe>
 
-But because optimization has been drilled over and over, I often find myself in this ditch.
+But because optimization have been drilled into me over and over, I'd often find myself in this debugging ditch.
 
 ![Cartoon image of creating extra bugs from solving bugs](https://cdn.hashnode.com/res/hashnode/image/upload/v1676539422547/8c969f5f-6979-4c7c-b100-14e630cac73e.jpeg align="center")
 
