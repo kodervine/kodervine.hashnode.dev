@@ -3,7 +3,7 @@ title: "Setting Up a Frontend Development Environment on a Second-Hand Laptop: A
 datePublished: Thu Mar 16 2023 23:12:53 GMT+0000 (Coordinated Universal Time)
 cuid: clfbq8ggc000309l781ou4f5k
 slug: setting-up-a-frontend-development-environment-on-a-second-hand-laptop-a-simple-guide
-cover: https://cdn.hashnode.com/res/hashnode/image/upload/v1679008213664/553db13a-88db-4348-9fad-5136a343ec68.png
+cover: https://cdn.hashnode.com/res/hashnode/image/upload/v1679039747125/071453a4-a7a3-40e2-b5aa-132a72fe225a.png
 tags: programming-blogs, programming, frontend-development
 
 ---
