@@ -73,7 +73,7 @@ It was through copywriting that I discovered email marketing. Then I saw that mo
 
 ## **Discovery of HTML and CSS and learning more about programming**
 
-I officially started learning programming by taking a Harvard cs50 course on YouTube taught by David Halan in December 2021. Then I also learned from other channels like freecodecamp, and Brad Traversy.
+I officially started learning programming by watching a computer science introductory video by freecodecamp and taking a Harvard cs50 course on YouTube taught by David Halan in December 2021. Then I also learned from other channels like Colt Steele, and Brad Traversy.
 
 As I learned more about HTML and CSS, I found myself more intrigued by programming as a whole. And since then, I've started learning other languages, starting with JavaScript and related libraries like react.
 
