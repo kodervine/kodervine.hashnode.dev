@@ -55,7 +55,7 @@ Then, I considered fiction writing. I eventually got my work published in an int
 
 ![](https://lh4.googleusercontent.com/-FQiE18cKOF78wiP-BHdIPYMKEFw_1pKDJwu6YSFVldQDVmkio3LrNkij2192PCNAfg1kqFOPtkMA6azYeyF6EwQo1-yOaJiPvtq-_-0_eWAoQHwjXnFflxhl5SEuIeDlS29C5IGNqkVVUgfHSNFKfA align="left")
 
-### Sceenwriting
+### Screenwriting
 
 After my stint with fiction writing, I tried my hands at screenwriting. I'd been a huge fan of movies and TV shows, so it felt like a natural progression. So, I submitted some of my scripts to projects, but nothing came out of it.
 
