@@ -1,8 +1,9 @@
 ---
-title: "Bug: Fixing the Issue of Only the First Toggle Switch Working in React"
+title: "Fixing the Issue of Only the First Checkbox/Toggle Working in React"
 datePublished: Wed Jul 17 2024 08:15:22 GMT+0000 (Coordinated Universal Time)
 cuid: clypkhss1000209jr2qx71zyx
-slug: bug-fixing-the-issue-of-only-the-first-toggle-switch-working-in-react
+slug: fixing-the-issue-of-only-the-first-checkboxtoggle-working-in-react
+cover: https://cdn.hashnode.com/res/hashnode/image/upload/v1721210890001/52011b5d-9064-4c01-b8b3-0ffe4f5ad469.png
 tags: javascript, reactjs, frontend-development, bugs-and-errors
 
 ---
