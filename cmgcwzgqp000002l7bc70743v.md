@@ -12,7 +12,7 @@ If you're reading this, you've probably hit a frustrating wall in vulnerability 
 
 This is a notorious problem when scanning a standalone Windows machine (a **Workgroup** member, not joined to a Domain). Windows has built-in security features designed to block remote local administrators, which breaks Nessus's ability to run its deep, credentialed checks.
 
-We're going to break down the entire fix, including the use of a powerful script that was the final key to our success.
+I will break down the fix I used to resolve this, including the use of a script that was the key to troubleshooting the error.
 
 ---
 
@@ -20,9 +20,9 @@ We're going to break down the entire fix, including the use of a powerful script
 
 The goal of a credentialed scan is simple: log in remotely to your target machine (e.g., `192.000.0.00`) to check patch levels, registry settings, and installed software. If authentication fails, Nessus can only perform a high-level network port scan, which is almost useless for compliance and patch management.
 
-### Initial Checks We Performed:
+### Initial Checks Performed:
 
-Before we get into the fixes, we confirmed the basics were already in place:
+Before I get into the fixes, I confirmed the basics were already in place:
 
 | Check | What It Means & How to Check | Example (What Success Looks Like) |
 | --- | --- | --- |
@@ -69,9 +69,9 @@ When running a PowerShell script (`.ps1` file) manually, the default security se
 
 *Replace* `C:\Users\LaptopName\Downloads` *with the actual path to your saved script and* `"admin"` *with the correct scanning account username.*
 
-### B. Analyzing the First Script Run (What We Found)
+### B. Analyzing the First Script Run
 
-When we first ran the script, it reported critical warnings that revealed the true blockage:
+When I first ran the script, it reported critical warnings that revealed the true blockage:
 
 | Script Warning | Problem Identified |
 | --- | --- |
@@ -195,14 +195,16 @@ No changes needed. Correct configuration.
 
 ## Part 4: The Final Scan
 
-The final step was a moment of truth. We made sure the Nessus policy was configured to leverage the fixes:
+I made sure the Nessus policy was configured to leverage the fixes:
 
-* **Username:** Simple `admin`
+* **Username:** Your scanning user name e.g `admin`
     
-* **Plugins:** Enabled **"Start the Remote Registry service during the scan"** and **"Enable administrative shares during the scan"**.
+* **Plugins:** Enabled **"Start the Remote Registry service during the scan"**, **"Enable administrative shares during the scan"** and **“Start the Server service during the scan”**
+    
+    ![](https://cdn.hashnode.com/res/hashnode/image/upload/v1759621700713/898d3a69-f5ee-4997-b91a-3409861b4fe7.png align="center")
     
 
-The final Nessus scan immediately resulted in **Auth: Pass** for the target machine
+The next Nessus scan I did after this resulted in **Auth: Pass** for the target machine as can be seen below.
 
 ![](https://cdn.hashnode.com/res/hashnode/image/upload/v1759619914457/8dafd48a-e242-4221-b586-93003541a59b.png align="center")
 
