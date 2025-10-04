@@ -24,7 +24,12 @@ The goal of a credentialed scan is simple: log in remotely to your target machin
 
 Before we get into the fixes, we confirmed the basics were already in place:
 
-<table><tbody><tr><td colspan="1" rowspan="1"><p>Check</p></td><td colspan="1" rowspan="1"><p>What It Means &amp; How to Check</p></td><td colspan="1" rowspan="1"><p>Example (What Success Looks Like)</p></td></tr><tr><td colspan="1" rowspan="1"><p><strong>Network Reachability</strong></p></td><td colspan="1" rowspan="1"><p><strong>TCP Port 445 (SMB) was open and reachable.</strong> This is the port used for remote administration on Windows. Run this in PowerShell from the scanning machine: <code>Test-NetConnection -ComputerName 192.000.0.000 -Port 445</code></p></td><td colspan="1" rowspan="1"><p><strong>Success:</strong> <code>TcpTestSucceeded : True</code></p></td></tr><tr><td colspan="1" rowspan="1"><p><strong>Account Status</strong></p></td><td colspan="1" rowspan="1"><p><strong>The local account (</strong><code>admin</code>) was a member of the Administrators group. The scanning account must have full administrative rights on the target host.</p></td><td colspan="1" rowspan="1"><p><strong>Verification:</strong> Open <strong>Computer Management</strong> &gt; <strong>Local Users and Groups</strong> &gt; <strong>Groups</strong> &gt; <strong>Administrators</strong>. Your scanning account must be listed.</p></td></tr><tr><td colspan="1" rowspan="1"><p><strong>Access Policy</strong></p></td><td colspan="1" rowspan="1"><p><strong>The Administrators group was explicitly allowed in the "Access this computer from the network" policy.</strong> This is a Local Security Policy setting required for any remote login.</p></td><td colspan="1" rowspan="1"><p><strong>Verification:</strong> Open <strong>Local Security Policy</strong> &gt; <strong>Local Policies</strong> &gt; <strong>User Rights Assignment</strong> &gt; <strong>Access this computer from the network</strong>. Ensure <strong>Administrators</strong> is listed.</p></td></tr><tr><td colspan="1" rowspan="1"><p><strong>Nessus Credential Format</strong></p></td><td colspan="1" rowspan="1"><p><strong>The simplest username format, </strong><code>admin</code>, was chosen in the policy to avoid naming issues. For workgroup hosts, avoid using <code>DESKTOP-NAME\admin</code>.</p></td><td colspan="1" rowspan="1"><p><strong>Verification:</strong> In your Nessus policy, use the simple username and ensure the necessary services are checked.</p></td></tr></tbody></table>
+| Check | What It Means & How to Check | Example (What Success Looks Like) |
+| --- | --- | --- |
+| **Network Reachability** | **TCP Port 445 (SMB) was open and reachable.** This is the port used for remote administration on Windows. Run this in PowerShell from the scanning machine: `Test-NetConnection -ComputerName 192.000.0.000 -Port 445` | **Success:** `TcpTestSucceeded : True` |
+| **Account Status** | **The local account (**`admin`) was a member of the Administrators group. The scanning account must have full administrative rights on the target host. | **Verification:** Open **Computer Management** &gt; **Local Users and Groups** &gt; **Groups** &gt; **Administrators**. Your scanning account must be listed. |
+| **Access Policy** | **The Administrators group was explicitly allowed in the "Access this computer from the network" policy.** This is a Local Security Policy setting required for any remote login. | **Verification:** Open **Local Security Policy** &gt; **Local Policies** &gt; **User Rights Assignment** &gt; **Access this computer from the network**. Ensure **Administrators** is listed. |
+| **Nessus Credential Format** | **The simplest username format,** `admin`, was chosen in the policy to avoid naming issues. For workgroup hosts, avoid using `DESKTOP-NAME\admin`. | **Verification:** In your Nessus policy, use the simple username and ensure the necessary services are checked. |
 
 Even with all of this correct, the "Auth: N/A" error persisted. This told us the issue was a **hidden security policy** blocking the remote logon.
 
@@ -36,28 +41,42 @@ Instead of hunting for obscure registry keys, we used a [comprehensive community
 
 ### A. How to Run the Script
 
-1. **Save the Script:** Save the entire script's code (as a `.ps1` file (e.g., `nessus_`[`check.ps`](http://check.ps)`1`) to an easily accessible location on the **Target Windows Machine** (e.g., the `Downloads` folder).
+When running a PowerShell script (`.ps1` file) manually, the default security setting (Execution Policy) often prevents it from running. You need to temporarily bypass this policy for the duration of the command.
+
+1. **Save the Script:** Save the entire script's code (e.g., as `nessus_`[`check.ps`](http://check.ps)`1`) to an easily accessible location on the **Target Windows Machine** (e.g., the Downloads folder).
     
-2. **Open PowerShell:** Run **PowerShell as Administrator**.
+2. **Open PowerShell:** Run PowerShell as **Administrator**.
     
-3. **Execute:** Navigate to the folder and run the script, passing your scanning account's username:
+3. **Enable Execution:** Run the `-ExecutionPolicy Bypass` flag. This flag is applied only to this specific command instance (`-Scope Process` is implied when using this flag on the `powershell.exe` executable), ensuring the policy reverts immediately afterward.
     
-    PowerShell
+    ```plaintext
+    # Execute the script with a temporary policy bypass
+    Set-ExecutionPolicy Bypass -Scope Process -Force
+    ```
+    
+    *Replace* `C:\Users\LaptopName\Downloads` *with the actual path to your saved script and* `"admin"` *with the correct scanning account username.* Running the above script ensure you are launching the PowerShell engine (`powershell.exe`) and telling it, "For this one file execution only, ignore the security policy (`-ExecutionPolicy Bypass`), then run the file (`-File ...`)." This is the most common and non-permanent way to run an administrative script locally without changing the system's security settings.
+    
+4. **Execute:** Navigate to the folder and run the script, passing your scanning account's username:
     
     ```plaintext
     # Navigate to your folder (e.g., Downloads)
     cd C:\Users\LaptopName\Downloads 
     
     # Execute the script
-    .\nessus_check.ps1 -ScanningAccounts "admin" 
+    .\nessus_check.ps1 -ScanningAccounts "admin"
     ```
     
+
+*Replace* `C:\Users\LaptopName\Downloads` *with the actual path to your saved script and* `"admin"` *with the correct scanning account username.*
 
 ### B. Analyzing the First Script Run (What We Found)
 
 When we first ran the script, it reported critical warnings that revealed the true blockage:
 
-<table><tbody><tr><td colspan="1" rowspan="1"><p>Script Warning</p></td><td colspan="1" rowspan="1"><p>Problem Identified</p></td></tr><tr><td colspan="1" rowspan="1"><p><strong>Windows Firewall Configuration</strong></p></td><td colspan="1" rowspan="1"><p>The <strong>WMI</strong> (Windows Management Instrumentation) rules (DCOM-In, WMI-In, ASync-In) were <strong>not enabled</strong> for the active network profile. WMI is how Nessus performs its deep administrative checks.</p></td></tr><tr><td colspan="1" rowspan="1"><p><strong>LocalAccountTokenFilterPolicy (UAC Only)</strong></p></td><td colspan="1" rowspan="1"><p>Windows User Account Control (UAC) was filtering the remote Administrator's security token, treating the remote login as a standard user. This bypass registry key was <strong>not correctly set</strong>.</p></td></tr></tbody></table>
+| Script Warning | Problem Identified |
+| --- | --- |
+| **Windows Firewall Configuration** | The **WMI** (Windows Management Instrumentation) rules (DCOM-In, WMI-In, ASync-In) were **not enabled** for the active network profile. WMI is how Nessus performs its deep administrative checks. |
+| **LocalAccountTokenFilterPolicy (UAC Only)** | Windows User Account Control (UAC) was filtering the remote Administrator's security token, treating the remote login as a standard user. This bypass registry key was **not correctly set**. |
 
 ---
 
@@ -97,8 +116,7 @@ reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v LocalA
 
 ### 3\. Verification Run
 
-After applying the fixes, we ran the `nessus_`[`check.ps`](http://check.ps)`1` script again. This time, **it reported "No changes needed. Correct configuration" for ALL checks**. This confirmed the target host was finally ready.  
-  
+After applying the fixes, we ran the `nessus_`[`check.ps`](http://check.ps)`1` script again. This time, **it reported "No changes needed. Correct configuration" for ALL checks**. This confirmed the target host was finally ready.
 
 ```plaintext
 Report for DESKTOP, part of WORKGROUP
